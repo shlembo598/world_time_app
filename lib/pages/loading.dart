@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
+import 'package:world_time_app/services/world_time.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Loading extends StatefulWidget {
   @override
@@ -8,32 +10,33 @@ class Loading extends StatefulWidget {
 }
 
 class _LoadingState extends State<Loading> {
-  void getTime() async {
-    //Make request
-    Response response = await get(Uri.parse("https://worldtimeapi.org/api/timezone/Europe/London"));
-    Map data = jsonDecode(response.body);
-    //print(data);
-    //get properties from data
-    String dateTime = data["datetime"];
-    String offset = data["utc_offset"];
-    print(dateTime);
-    print(offset);
+  void setupWorldTime() async {
+    WorldTime instance = WorldTime(
+        location: "Krasnodar", flag: "fussia.png", url: "Europe/Moscow");
+    await instance.getTime();
+    Navigator.pushReplacementNamed(context, "/home", arguments: {
+      "location": instance.location,
+      "flag": instance.flag,
+      "time": instance.time,
+      "isDaytime" : instance.isDaytime
+    });
   }
-
-  int counter = 0;
 
   @override
   void initState() {
     super.initState();
-    getTime();
+    setupWorldTime();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Loading screen"),
-    );
+      backgroundColor: Colors.blue[900],
+        body: Center(
+      child: SpinKitWave(
+        color: Colors.white,
+        size: 80.0,
+      ),
+    ));
   }
 }
-
-
